@@ -18,11 +18,8 @@
 
 ## 安裝方法
 1. 下載 [mogodb](https://hub.docker.com/_/mongo?tab=tags)
-2. 安裝 cobra
-   ```
-    go install github.com/spf13/cobra-cli@latest
-   ```
-3. 建立config/config.json
+
+2. 建立config/config.json
     ```
     {
         "lineChannelSecret": "你的Line Channel Secret",
@@ -33,16 +30,16 @@
         "collectionName": "messages"
     }
     ```
-1. 進入專案資料夾並執行
+3. 進入專案資料夾並執行
    ```
    make linecommand_init
    ```
-2. 完成後執行下列命令便會建立docker container 並開啟伺服器
+4. 完成後執行下列命令便會建立docker container 並開啟伺服器
    ```
    linebot init [專案絕對路徑]
    ```
    
-3. 若要重新啟動請執行下列便可重新開啟伺服器。
+5. 若要重新啟動請執行下列便可重新開啟伺服器。
     ```
    linebot start [專案絕對路徑]
     ```
@@ -53,7 +50,68 @@ __*備註：Makefile中有開啟ngrok命令可供使用，若你想在本地端�
 
 ## API介紹
 
-### 獲取所有收到訊息與其他相關資訊
+### API-1 接收用戶訊息並存入資料庫(供 Line webhook 使用)
+-----
+`POST /callback`
+
+#### Line Messaging API Webhook 設定
+![Line Messaging API Webhook](readme_gifs/line_webhook.png)
+  
+#### Demo
+![Callback api demo](readme_gifs/API-1.gif)
+[圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/API-1.gif)
+
+### API-2 推播訊息給用戶(回傳所有接收訊息的用戶ID)
+-----
+#### Request
+- 可用 Postman 或是 Command line 來執行
+
+
+1. Postman
+
+`POST /push`
+
+```
+http://localhost:8000/push
+```
+  - Request Body (JSON):
+    ```
+    {
+        "message": "訊息"
+    }
+    ```
+
+2. Command line 
+```
+linebot pushmessgae [message]
+```
+
+#### Response
+回傳所有接收訊息的用戶ID
+- Response Header:
+```
+POST /push HTTP/1.1
+Content-Type: application/json
+Host: localhost:8000
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Sun, 05 Jun 2022 12:43:31 GMT
+```
+
+- Response Body (JSON, Array of string):
+```
+["Ufe2722eb0bd0e2faf2aa5d380f14bcf3"]
+```
+
+#### Demo Command line
+![Push message demo 1](readme_gifs/post2_request.gif)
+[圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/post2_request.gif)
+
+#### Demo Postman
+![Push message demo 2](readme_gifs/post1_request.gif)
+[圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/post1_request.gif)
+
+### API-3 獲取所有收到訊息與其他相關資訊
 -----
 #### Request
 `GET /all`
@@ -109,49 +167,3 @@ Date: Sun, 05 Jun 2022 12:45:26 GMT
 #### Demo
 ![Get all message demo](readme_gifs/get_request.gif)
 [圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/get_request.gif)
-
-
-### 推播訊息給用戶(回傳所有接收訊息的用戶ID)
------
-#### Request
-`POST /push`
-- Request Body (JSON):
-```
-{
-    "message": "訊息"
-}
-```
-可用Command line 或是 Postman來執行
-- Command line 
-```
-linebot pushmessgae [message]
-```
-- Postman
-```
-http://localhost:8000/push
-```
-
-#### Response
-回傳所有接收訊息的用戶ID
-- Response Header:
-```
-POST /push HTTP/1.1
-Content-Type: application/json
-Host: localhost:8000
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-Date: Sun, 05 Jun 2022 12:43:31 GMT
-```
-
-- Response Body (JSON, Array of string):
-```
-["Ufe2722eb0bd0e2faf2aa5d380f14bcf3"]
-```
-
-#### Demo Command line
-![Push message demo 1](readme_gifs/post2_request.gif)
-[圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/post2_request.gif)
-
-#### Demo Postman
-![Push message demo 2](readme_gifs/post1_request.gif)
-[圖片放大](https://github.com/stevetsaoch/cinnox-homework/blob/main/readme_gifs/post1_request.gif)
