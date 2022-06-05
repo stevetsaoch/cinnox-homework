@@ -16,3 +16,12 @@ docker_init:
 
 docker_start:
 	docker start ${DOCKER_NAME}
+
+server_start:
+	go run main.go
+
+docker_stop:
+	docker stop ${DOCKER_NAME}
+
+linecommand_init:
+	(cd ./linecommand && go build && go install)
