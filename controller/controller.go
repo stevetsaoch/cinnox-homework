@@ -98,3 +98,38 @@ func PushMessage(c *gin.Context) {
 	// return userid of receiving message
 	c.JSON(http.StatusOK, results)
 }
+
+func GetAllMessages(c *gin.Context) {
+	var linemessage model.LineEvent
+	var results []model.LineEvent
+	// load config
+	config_, err := config.Loadconfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// database and collection instance
+	client := config.ConnectDB()
+	coll := client.Database(config_.DatabaseName).Collection(config_.CollectionName)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// set a cursor
+	cursor, err := coll.Find(ctx, bson.D{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// loop through all results and save in results slice
+	for cursor.Next(context.Background()) {
+		if err := cursor.Decode(&linemessage); err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, linemessage)
+	}
+
+	c.JSON(http.StatusOK, results)
+}
