@@ -7,4 +7,5 @@ import (
 
 func LineRoutes(router *gin.Engine) {
 	router.POST("/callback", controller.ReceiveMessage)
+	router.POST("/push", controller.PushMessage)
 }

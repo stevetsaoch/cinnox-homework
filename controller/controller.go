@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/stevetsaoch/cinnox-homework/config"
+	"github.com/stevetsaoch/test_project/model"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func ReceiveMessage(c *gin.Context) {
@@ -56,4 +59,42 @@ func ReceiveMessage(c *gin.Context) {
 		fmt.Println(res)
 	}
 
+}
+
+func PushMessage(c *gin.Context) {
+	// declare message
+	var message model.Pushmessage
+	err := c.Bind(&message)
+
+	// load config
+	config_, err := config.Loadconfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// mongodb instance
+	client_mongo := config.ConnectDB()
+	bot := config.LineBot()
+
+	// collection instance
+	collection := client_mongo.Database(config_.DatabaseName).Collection(config_.CollectionName)
+
+	// get all distinct userid for sending promote message
+	results, err := collection.Distinct(context.TODO(), "source.userid", bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, result := range results {
+		if val, ok := result.(string); ok {
+			if _, err := bot.PushMessage(val, linebot.NewTextMessage(message.Message)).Do(); err != nil {
+				fmt.Printf("Message not sent!")
+				log.Fatal(err)
+			}
+		}
+	}
+
+	// return userid of receiving message
+	c.JSON(http.StatusOK, results)
 }
