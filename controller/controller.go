@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/stevetsaoch/cinnox-homework/config"
-	"github.com/stevetsaoch/test_project/model"
+	"github.com/stevetsaoch/cinnox-homework/model"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

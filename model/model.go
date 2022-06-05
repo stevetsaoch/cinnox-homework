@@ -50,3 +50,8 @@ type Message struct {
 	Emojis []Emojis `json:"emojis" bson:"emojis"`
 	Metion string   `json:"metion" bson:"metion"`
 }
+
+// Pushmessage structure
+type Pushmessage struct {
+	Message string `mapstructure:"message"`
+}
