@@ -1,11 +1,15 @@
 package config
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/spf13/viper"
 	"github.com/stevetsaoch/cinnox-homework/model"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func Loadconfig() (config model.Config, err error) {
@@ -56,5 +60,26 @@ func MongoURI() (URI string) {
 
 	// build mogdb URI
 	URI = "mongodb://" + config.MongoUser + ":" + config.MongoPwd + "@127.0.0.1:2717/?authSource=admin"
+	return
+}
+
+// return client of mongodb
+func ConnectDB() (client *mongo.Client) {
+	URI := MongoURI()
+	client, err := mongo.NewClient(options.Client().ApplyURI(URI))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return
 }
